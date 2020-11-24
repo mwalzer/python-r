@@ -66,7 +66,7 @@ RUN Rscript -e "install.packages('knitr')"
 
 RUN Rscript -e "install.packages('devtools')"
 RUN Rscript -e "install.packages('Rcpp')"
-RUN Rscript -e "library('devtools'); install_github('twitter/AnomalyDetection')"
+RUN Rscript -e "remotes::install_github('twitter/AnomalyDetection')"
 
 RUN Rscript -e "install.packages('qcc')"
 RUN Rscript -e "install.packages('ggQC')"
