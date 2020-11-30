@@ -1,48 +1,8 @@
-FROM python:3.8.6-slim-buster
-#FROM python:3.6.9-slim-buster
-#FROM python:3.6.5-slim-jessie
-#FROM python:2.7-slim-jessie
-
-# terminal fix
-ENV DEBIAN_FRONTEND noninteractive 
-# apt-key fix
-ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1  
- 
-RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \ 
-  software-properties-common \
-  git \
-  vim \
-  libqt4-network \
-  libgomp1 \
-  zlib1g-dev \
-  libstdc++6 \
-  sudo \
-  build-essential \
-  libssl-dev \
-  libcurl4-openssl-dev \
-  gnupg2
-
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
-
-RUN echo "deb http://http.debian.net/debian buster main" > /etc/apt/sources.list.d/debian-unstable.list
-
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0xE19F5F87128899B192B1A2C2AD5F960A256A04AF &&\
-	add-apt-repository 'deb http://cloud.r-project.org/bin/linux/debian buster-cran40/' &&\
-	apt-get update
-
-RUN apt-get install -y --no-install-recommends \
-  r-base-core \
-  r-base \
-  r-recommended \
-  libopenblas-base \
-  gfortran \
-  pandoc &&\
-  rm -rf /var/lib/apt/lists/*
-    
+FROM bioconductor/bioconductor_docker:RELEASE_3_12
 
 #setup R configs
-RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
+RUN Rscript -e "install.packages('Rcpp')"
+
 RUN Rscript -e "install.packages('tidyverse')"
 RUN Rscript -e "install.packages('dplyr')"
 RUN Rscript -e "install.packages('tibble')"
@@ -66,25 +26,39 @@ RUN Rscript -e "install.packages('htmlwidgets')"
 RUN Rscript -e "install.packages('knitr')"
 
 RUN Rscript -e "install.packages('devtools')"
-RUN Rscript -e "install.packages('Rcpp')"
 RUN Rscript -e "remotes::install_github('twitter/AnomalyDetection')"
+RUN Rscript -e "BiocManager::install('MSstats')"
 
 RUN Rscript -e "install.packages('qcc')"
 RUN Rscript -e "install.packages('ggQC')"
 RUN Rscript -e "install.packages('MSQC')"
 RUN Rscript -e "install.packages('IQCC')"
 RUN Rscript -e "install.packages('yhatr')"
-RUN Rscript -e "install.packages('MSstats')"
 RUN Rscript -e "install.packages('pracma')"
 RUN Rscript -e "install.packages('anomalize')"
 RUN Rscript -e "install.packages('DMwR')"
 RUN Rscript -e "install.packages('outliers')"
 
-#RUN echo 'install.packages(c("ggplot2", "plyr", "reshape2", "RColorBrewer", "scales", "FactoMineR", \
-#"Hmisc", "cowplot", "shiny"), repos="http://cran.us.r-project.org", dependencies=TRUE)' > /tmp/packages.R \
-#&& Rscript /tmp/packages.R
+RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \ 
+  software-properties-common \
+  git \
+  vim \
+  libgomp1 \
+  zlib1g-dev \
+  libstdc++6 \
+  sudo \
+  build-essential \
+  libssl-dev \
+  libcurl4-openssl-dev \
+  gnupg2 \
+  python-dev \
+  python3-dev \
+  libxml2-dev \
+  libxslt-dev &&\
+  rm -rf /var/lib/apt/lists/*
 
-RUN pip install pip --upgrade
-RUN pip install setuptools --upgrade
-RUN pip install --force-reinstall 'pytest<=5.0.1'
-RUN pip install numpy mypy pronto pytest jupyter rpy2 biopython flask
+RUN pip3 install pip --upgrade
+RUN pip3 install setuptools --upgrade
+RUN pip3 install --force-reinstall 'pytest<=5.0.1'
+RUN pip3 install numpy mypy pronto pytest jupyter rpy2 biopython flask
+
