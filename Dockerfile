@@ -1,5 +1,24 @@
 FROM bioconductor/bioconductor_docker:RELEASE_3_12
 
+#install some more build tools and libs
+RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \ 
+  software-properties-common \
+  git \
+  vim \
+  libgomp1 \
+  zlib1g-dev \
+  libstdc++6 \
+  sudo \
+  build-essential \
+  libssl-dev \
+  libcurl4-openssl-dev \
+  gnupg2 \
+  python-dev \
+  python3-dev \
+  libxml2-dev \
+  libxslt-dev &&\
+  rm -rf /var/lib/apt/lists/*
+
 #setup R configs
 RUN Rscript -e "install.packages('Rcpp')"
 
@@ -39,26 +58,9 @@ RUN Rscript -e "install.packages('anomalize')"
 RUN Rscript -e "install.packages('DMwR')"
 RUN Rscript -e "install.packages('outliers')"
 
-RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \ 
-  software-properties-common \
-  git \
-  vim \
-  libgomp1 \
-  zlib1g-dev \
-  libstdc++6 \
-  sudo \
-  build-essential \
-  libssl-dev \
-  libcurl4-openssl-dev \
-  gnupg2 \
-  python-dev \
-  python3-dev \
-  libxml2-dev \
-  libxslt-dev &&\
-  rm -rf /var/lib/apt/lists/*
+RUN Rscript -e "tinytex::install_tinytex(version = '2020.11')"
 
 RUN pip3 install pip --upgrade
 RUN pip3 install setuptools --upgrade
 RUN pip3 install --force-reinstall 'pytest<=5.0.1'
 RUN pip3 install numpy mypy pronto pytest jupyter rpy2 biopython flask
-
