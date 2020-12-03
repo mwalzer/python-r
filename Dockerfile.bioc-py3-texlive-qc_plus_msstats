@@ -1,6 +1,4 @@
 FROM bioconductor/bioconductor_docker:RELEASE_3_12
-# bioconductor/bioconductor_docker:RELEASE_3_12 is FROM rocker/rstudio:4.0.3 
-# (i.e. 2 stages before the rocker image with tex - rocker/verse) 
 
 #install some more build tools and libs
 RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \ 
@@ -21,6 +19,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
   libxslt-dev &&\
   rm -rf /var/lib/apt/lists/*
 
+#install tex
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends apt-utils \
+	&& apt-get install -y --no-install-recommends \
+	texlive \
+	texlive-latex-extra \
+	texlive-fonts-extra \
+	texlive-bibtex-extra \
+	texlive-science \
+	texi2html \
+	texinfo \
+	&& apt-get clean \
+	&& rm -rf /var/lib/apt/lists/*
+	
 #setup R configs
 RUN Rscript -e "install.packages('Rcpp')"
 
@@ -42,6 +54,10 @@ RUN Rscript -e "install.packages('scales')"
 RUN Rscript -e "install.packages('grid')"
 RUN Rscript -e "install.packages('gridExtra')"
 
+RUN Rscript -e "install.packages('plotly')"
+RUN Rscript -e "install.packages('htmlwidgets')"
+RUN Rscript -e "install.packages('knitr')"
+
 RUN Rscript -e "install.packages('devtools')"
 RUN Rscript -e "remotes::install_github('twitter/AnomalyDetection')"
 RUN Rscript -e "BiocManager::install('MSstats')"
@@ -56,35 +72,7 @@ RUN Rscript -e "install.packages('anomalize')"
 RUN Rscript -e "install.packages('DMwR')"
 RUN Rscript -e "install.packages('outliers')"
 
-
-RUN Rscript -e "install.packages('plotly')"
-RUN Rscript -e "install.packages('htmlwidgets')"
-RUN Rscript -e "install.packages('tinytex')"
-
 #RUN Rscript -e "tinytex::install_tinytex(version = '2020.11')"
-RUN wget -qO- \
-    "https://github.com/yihui/tinytex/raw/master/tools/install-unx.sh" | \
-    sh -s - --admin --no-path \
-  && mv ~/.TinyTeX /opt/TinyTeX \
-  && if /opt/TinyTeX/bin/*/tex -v | grep -q 'TeX Live 2018'; then \
-      ## Patch the Perl modules in the frozen TeX Live 2018 snapshot with the newer
-      ## version available for the installer in tlnet/tlpkg/TeXLive, to include the
-      ## fix described in https://github.com/yihui/tinytex/issues/77#issuecomment-466584510
-      ## as discussed in https://www.preining.info/blog/2019/09/tex-services-at-texlive-info/#comments
-      wget -P /tmp/ ${CTAN_REPO}/install-tl-unx.tar.gz \
-      && tar -xzf /tmp/install-tl-unx.tar.gz -C /tmp/ \
-      && cp -Tr /tmp/install-tl-*/tlpkg/TeXLive /opt/TinyTeX/tlpkg/TeXLive \
-      && rm -r /tmp/install-tl-*; \
-    fi \
-  && /opt/TinyTeX/bin/*/tlmgr path add \
-  && tlmgr install ae inconsolata listings metafont mfware parskip pdfcrop tex \
-  && tlmgr path add \
-  && Rscript -e "tinytex::r_texmf()" \
-  && chown -R root:staff /opt/TinyTeX \
-  && chmod -R g+w /opt/TinyTeX \
-  && chmod -R g+wx /opt/TinyTeX/bin \
-  && echo "PATH=${PATH}" >> /usr/local/lib/R/etc/Renviron
-RUN Rscript -e "install.packages('tinytex')"
 
 RUN pip3 install pip --upgrade
 RUN pip3 install setuptools --upgrade
