@@ -45,6 +45,7 @@ RUN Rscript -e "install.packages('gridExtra')"
 RUN Rscript -e "install.packages('devtools')"
 RUN Rscript -e "remotes::install_github('twitter/AnomalyDetection')"
 RUN Rscript -e "BiocManager::install('MSstats')"
+RUN Rscript -e "install.packages('optparse')"
 
 RUN Rscript -e "install.packages('qcc')"
 RUN Rscript -e "install.packages('ggQC')"
@@ -55,7 +56,6 @@ RUN Rscript -e "install.packages('pracma')"
 RUN Rscript -e "install.packages('anomalize')"
 RUN Rscript -e "install.packages('DMwR')"
 RUN Rscript -e "install.packages('outliers')"
-
 
 RUN Rscript -e "install.packages('plotly')"
 RUN Rscript -e "install.packages('htmlwidgets')"
